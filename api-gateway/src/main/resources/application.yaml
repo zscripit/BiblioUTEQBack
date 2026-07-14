@@ -20,6 +20,10 @@ spring:
           uri: lb://MS-USER-AUTH-REGISTER
           predicates:
             - Path=/api/v1/**, /oauth2/**, /.well-known/**, /login, /login**
+        - id: ms-prestamos-estadisticas-routes
+          uri: lb://MS-PRESTAMOS
+          predicates:
+            - Path=/api/estadisticas/**
 
   security:
     oauth2:
