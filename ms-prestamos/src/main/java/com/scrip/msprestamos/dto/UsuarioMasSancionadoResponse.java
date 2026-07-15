@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record UsuarioMasSancionadoResponse(
         UUID usuarioId,
-        long totalSanciones
+        Integer totalSanciones
 ) {
 }

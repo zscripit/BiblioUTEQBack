@@ -6,6 +6,6 @@ public record LibroMasPrestadoResponse(
         UUID libroId,
         String titulo,
         String isbn,
-        long totalPrestamos
+        Integer totalPrestamos
 ) {
 }
