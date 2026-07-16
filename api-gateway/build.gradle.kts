@@ -8,11 +8,11 @@ group = "com.scrip"
 version = "0.0.1-SNAPSHOT"
 description = "api-gateway"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
+// java {
+//     toolchain {
+//         languageVersion = JavaLanguageVersion.of(21)
+//     }
+// }
 
 repositories {
     mavenCentral()

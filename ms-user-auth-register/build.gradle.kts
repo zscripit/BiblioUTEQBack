@@ -27,8 +27,8 @@ dependencies {
 
     // Drivers y herramientas
     runtimeOnly("org.postgresql:postgresql")
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
+    compileOnly("org.projectlombok:lombok:1.18.40")
+    annotationProcessor("org.projectlombok:lombok:1.18.40")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
