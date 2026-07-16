@@ -44,7 +44,25 @@ public class AuthorizationServerConfig {
                 .clientSettings(ClientSettings.builder().requireProofKey(true).build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(postmanClient);
+        // Angular es un cliente publico: el navegador no puede guardar secretos.
+        RegisteredClient angularClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("bibliouteq-spa")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri("http://localhost:4200/auth/callback")
+                .postLogoutRedirectUri("http://localhost:4200/")
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .scope("read")
+                .scope("write")
+                .clientSettings(ClientSettings.builder()
+                        .requireProofKey(true)
+                        .requireAuthorizationConsent(false)
+                        .build())
+                .build();
+
+        return new InMemoryRegisteredClientRepository(postmanClient, angularClient);
     }
 
     // 2. Definimos los ajustes del servidor (rutas por defecto)

@@ -9,6 +9,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 // LOS IMPORTS CORREGIDOS PARA 3.x:
@@ -19,6 +22,17 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    /**
+     * Solo una solicitud de autorizacion puede convertirse en el destino posterior al login.
+     * Evita que /login o peticiones automaticas del navegador sobrescriban el flujo PKCE.
+     */
+    @Bean
+    public RequestCache oauth2RequestCache() {
+        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        requestCache.setRequestMatcher(new AntPathRequestMatcher("/oauth2/authorize", "GET"));
+        return requestCache;
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -51,7 +65,10 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain authServerSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain authServerSecurityFilterChain(
+            HttpSecurity http,
+            RequestCache oauth2RequestCache
+    ) throws Exception {
         // 1. En la versión 3.x, aplicamos la configuración por defecto de forma estática y limpia:
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
@@ -62,17 +79,28 @@ public class SecurityConfig {
         http.exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
         );
+        http.requestCache(cache -> cache.requestCache(oauth2RequestCache));
 
         return http.build();
     }
 
     // Cadena de Filtros 2: Dedicada a tus endpoints de negocio (API REST)
     @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(
+            HttpSecurity http,
+            RequestCache oauth2RequestCache
+    ) throws Exception {
         http
+                .requestCache(cache -> cache.requestCache(oauth2RequestCache))
                 .authorizeHttpRequests(authorize -> authorize
                         // Tus rutas públicas (registro, etc.)
-                        .requestMatchers("/api/v1/users/register").permitAll()
+                        .requestMatchers(
+                                "/api/v1/users/register",
+                                // Brave/Chrome DevTools consulta esta ruta automaticamente.
+                                // Debe responder 404 sin crear una SavedRequest que reemplace /oauth2/authorize.
+                                "/.well-known/appspecific/**",
+                                "/favicon.ico"
+                        ).permitAll()
                         // Cualquier otra requiere estar autenticado
                         .anyRequest().authenticated()
                 )
