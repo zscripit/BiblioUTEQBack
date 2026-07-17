@@ -37,6 +37,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getId();
     }
 
+    public String getFullName() {
+        return user.getNombreCompleto();
+    }
+
     @Override
     public boolean isEnabled() {
         return user.isActivo();

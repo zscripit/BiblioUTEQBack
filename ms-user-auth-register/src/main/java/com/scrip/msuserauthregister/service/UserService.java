@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.scrip.msuserauthregister.dto.AdminUserRequest;
 import com.scrip.msuserauthregister.dto.UserResponse;
 import com.scrip.msuserauthregister.dto.UserStatusResponse;
+import com.scrip.msuserauthregister.dto.ProfileUpdateRequest;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,15 +23,18 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public void registerUser(RegisterRequest request) {
+        String email = normalizeEmail(request.getEmail());
+        String name = normalizeName(request.getNombreCompleto());
         // 1. Validar unicidad del email
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("El correo electrónico ya está registrado");
         }
 
         // 2. Construir la entidad cifrando la contraseña
+        ensureUniqueName(name, null);
         User user = User.builder()
-                .nombreCompleto(request.getNombreCompleto())
-                .email(request.getEmail())
+                .nombreCompleto(name)
+                .email(email)
                 .password(passwordEncoder.encode(request.getPassword())) // Aquí se aplica BCrypt
                 .rol(request.getRol())
                 .build();
@@ -64,9 +68,10 @@ public class UserService {
             throw new IllegalArgumentException("La contrasena es obligatoria al crear un usuario");
         }
         ensureUniqueEmail(request.email(), null);
+        ensureUniqueName(request.nombreCompleto(), null);
         User user = User.builder()
-                .nombreCompleto(request.nombreCompleto().trim())
-                .email(request.email().trim().toLowerCase())
+                .nombreCompleto(normalizeName(request.nombreCompleto()))
+                .email(normalizeEmail(request.email()))
                 .password(passwordEncoder.encode(request.password()))
                 .rol(request.rol())
                 .activo(true)
@@ -78,8 +83,9 @@ public class UserService {
     public UserResponse update(UUID id, AdminUserRequest request) {
         User user = requireActive(id);
         ensureUniqueEmail(request.email(), id);
-        user.setNombreCompleto(request.nombreCompleto().trim());
-        user.setEmail(request.email().trim().toLowerCase());
+        ensureUniqueName(request.nombreCompleto(), id);
+        user.setNombreCompleto(normalizeName(request.nombreCompleto()));
+        user.setEmail(normalizeEmail(request.email()));
         user.setRol(request.rol());
         if (request.password() != null && !request.password().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.password()));
@@ -98,6 +104,26 @@ public class UserService {
         return toResponse(userRepository.save(user));
     }
 
+    @Transactional(readOnly = true)
+    public UserResponse findProfile(UUID id) {
+        return toResponse(requireActive(id));
+    }
+
+    @Transactional
+    public UserResponse updateProfile(UUID id, ProfileUpdateRequest request) {
+        User user = requireActive(id);
+        String email = normalizeEmail(request.email());
+        String name = normalizeName(request.nombreCompleto());
+        ensureUniqueEmail(email, id);
+        ensureUniqueName(name, id);
+        user.setNombreCompleto(name);
+        user.setEmail(email);
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+        }
+        return toResponse(userRepository.save(user));
+    }
+
     private User requireActive(UUID id) {
         return userRepository.findById(id)
                 .filter(User::isActivo)
@@ -105,11 +131,27 @@ public class UserService {
     }
 
     private void ensureUniqueEmail(String email, UUID currentId) {
-        userRepository.findByEmail(email.trim().toLowerCase()).ifPresent(existing -> {
+        userRepository.findByEmail(normalizeEmail(email)).ifPresent(existing -> {
             if (currentId == null || !existing.getId().equals(currentId)) {
                 throw new IllegalArgumentException("El correo electronico ya esta registrado");
             }
         });
+    }
+
+    private void ensureUniqueName(String name, UUID currentId) {
+        userRepository.findByNombreCompletoIgnoreCase(normalizeName(name)).ifPresent(existing -> {
+            if (currentId == null || !existing.getId().equals(currentId)) {
+                throw new IllegalArgumentException("El nombre completo ya esta registrado");
+            }
+        });
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase();
+    }
+
+    private String normalizeName(String name) {
+        return name.trim().replaceAll("\\s+", " ");
     }
 
     private UserResponse toResponse(User user) {
