@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .pathMatchers("/api/v1/users/register", "/login**", "/oauth2/**", "/connect/**", "/.well-known/**").permitAll()
+                        .pathMatchers("/api/users/register", "/login**", "/oauth2/**", "/connect/**", "/.well-known/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));

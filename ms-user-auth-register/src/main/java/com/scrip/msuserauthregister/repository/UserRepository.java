@@ -10,5 +10,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // Este método nos servirá más adelante para validar que el correo sea único en el registro
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailAndActivoTrue(String email);
-    List<User> findAllByActivoTrueOrderByNombreCompletoAsc();
+    List<User> findAllByOrderByNombreCompletoAsc();
 }

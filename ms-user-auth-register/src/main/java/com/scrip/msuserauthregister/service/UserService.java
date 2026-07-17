@@ -40,8 +40,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserResponse> findAllActive() {
-        return userRepository.findAllByActivoTrueOrderByNombreCompletoAsc().stream()
+    public List<UserResponse> findAll() {
+        return userRepository.findAllByOrderByNombreCompletoAsc().stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -88,13 +88,14 @@ public class UserService {
     }
 
     @Transactional
-    public void softDelete(UUID id, String authenticatedEmail) {
-        User user = requireActive(id);
-        if (user.getEmail().equalsIgnoreCase(authenticatedEmail)) {
-            throw new IllegalArgumentException("No puedes eliminar tu propio usuario");
+    public UserResponse updateStatus(UUID id, boolean active, String authenticatedEmail) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        if (!active && user.getEmail().equalsIgnoreCase(authenticatedEmail)) {
+            throw new IllegalArgumentException("No puedes desactivar tu propio usuario");
         }
-        user.setActivo(false);
-        userRepository.save(user);
+        user.setActivo(active);
+        return toResponse(userRepository.save(user));
     }
 
     private User requireActive(UUID id) {

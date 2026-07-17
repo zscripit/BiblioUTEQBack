@@ -17,7 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -38,7 +38,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public List<UserResponse> findAll() {
-        return userService.findAllActive();
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
@@ -59,11 +59,16 @@ public class UserController {
         return userService.update(id, request);
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<Void> delete(@PathVariable UUID id, Authentication authentication) {
-        userService.softDelete(id, authentication.getName());
-        return ResponseEntity.noContent().build();
+    public UserResponse updateStatus(@PathVariable UUID id,
+                                     @RequestBody Map<String, Boolean> request,
+                                     Authentication authentication) {
+        Boolean active = request.get("activo");
+        if (active == null) {
+            throw new IllegalArgumentException("El estado activo es obligatorio");
+        }
+        return userService.updateStatus(id, active, authentication.getName());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
