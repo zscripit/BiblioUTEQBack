@@ -18,7 +18,7 @@ spring:
         - id: ms-user-auth-register-routes
           uri: lb://MS-USER-AUTH-REGISTER
           predicates:
-            - Path=/api/v1/users/**, /api/v1/auth/**, /oauth2/**, /connect/**, /.well-known/**, /login, /login**
+            - Path=/api/users/**, /api/profile, /api/v1/auth/**, /oauth2/**, /connect/**, /.well-known/**, /login, /login**
         - id: ms-prestamos-routes
           uri: lb://MS-PRESTAMOS
           predicates:

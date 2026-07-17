@@ -115,13 +115,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // Tus rutas públicas (registro, etc.)
                         .requestMatchers(
-                                "/api/v1/users/register",
+                                "/api/users/register",
                                 // Brave/Chrome DevTools consulta esta ruta automaticamente.
                                 // Debe responder 404 sin crear una SavedRequest que reemplace /oauth2/authorize.
                                 "/.well-known/appspecific/**",
                                 "/favicon.ico"
                         ).permitAll()
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
                         // Cualquier otra requiere estar autenticado
                         .anyRequest().authenticated()
                 )

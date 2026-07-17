@@ -89,6 +89,7 @@ public class AuthorizationServerConfig {
                 context.getClaims().claim("roles", roles);
                 context.getClaims().claim("user_id", userDetails.getId().toString());
                 context.getClaims().claim("email", userDetails.getUsername());
+                context.getClaims().claim("name", userDetails.getFullName());
             } else if (context.getAuthorization() != null
                     && context.getAuthorization().getAccessToken() != null) {
                 // En refresh_token el principal es el cliente. Conservamos los claims
@@ -96,7 +97,7 @@ public class AuthorizationServerConfig {
                 Map<String, Object> previousClaims = context.getAuthorization().getAccessToken().getClaims();
                 if (previousClaims != null) {
                     previousClaims.entrySet().stream()
-                            .filter(entry -> Set.of("roles", "user_id", "email").contains(entry.getKey()))
+                            .filter(entry -> Set.of("roles", "user_id", "email", "name").contains(entry.getKey()))
                             .filter(entry -> entry.getValue() != null)
                             .forEach(entry -> context.getClaims().claim(entry.getKey(), entry.getValue()));
                 }

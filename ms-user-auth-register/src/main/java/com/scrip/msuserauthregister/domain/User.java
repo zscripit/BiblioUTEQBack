@@ -18,7 +18,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "nombre_completo", nullable = false, length = 150)
+    @Column(name = "nombre_completo", nullable = false, unique = true, length = 150)
     private String nombreCompleto;
 
     @Column(nullable = false, unique = true, length = 150)
