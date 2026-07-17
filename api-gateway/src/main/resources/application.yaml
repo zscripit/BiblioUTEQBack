@@ -1,5 +1,5 @@
 server:
-  port: 8080 # El puerto público definitivo para Postman o Frontend
+  port: 8088 # El puerto público definitivo para Postman o Frontend
 
 spring:
   application:
