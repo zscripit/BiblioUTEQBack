@@ -39,6 +39,11 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.obtenerReservasActivasDeUsuario(usuarioId));
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Reserva>> obtenerReservasDeUsuario(@PathVariable UUID usuarioId) {
+        return ResponseEntity.ok(reservaService.obtenerReservasDeUsuario(usuarioId));
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<Reserva>> obtenerTodasReservas() {

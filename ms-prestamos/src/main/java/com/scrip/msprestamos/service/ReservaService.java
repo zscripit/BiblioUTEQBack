@@ -69,6 +69,10 @@ public class ReservaService {
         return reservaRepository.findByUsuarioIdAndEstado(usuarioId, EstadoReserva.ACTIVA);
     }
 
+    public List<Reserva> obtenerReservasDeUsuario(UUID usuarioId) {
+        return reservaRepository.findByUsuarioId(usuarioId);
+    }
+
     public List<Reserva> obtenerTodasReservas() {
         return reservaRepository.findAll();
     }
