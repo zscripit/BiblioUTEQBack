@@ -33,9 +33,8 @@ public class Libro {
     @Column(length = 100)
     private String categoria;
 
-    @Lob
-    @Column(name = "portada")
-    private byte[] portada;
+    @Column(name = "portada_url", length = 1000)
+    private String portadaUrl;
 
     @Builder.Default
     @Column(nullable = false)

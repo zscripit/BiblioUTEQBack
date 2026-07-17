@@ -50,6 +50,7 @@ public class BookService {
                 .autor(request.autor())
                 .categoria(request.categoria())
                 .stock(request.stock())
+                .portadaUrl(request.portadaUrl())
                 .build();
 
         return toDto(bookRepository.save(libro));
@@ -62,6 +63,7 @@ public class BookService {
         libro.setAutor(request.autor());
         libro.setCategoria(request.categoria());
         libro.setStock(request.stock());
+        libro.setPortadaUrl(request.portadaUrl());
         return toDto(bookRepository.save(libro));
     }
 
@@ -87,45 +89,6 @@ public class BookService {
         return toDto(bookRepository.save(libro));
     }
 
-    public BookDto subirPortada(UUID id, byte[] imagen) {
-        if (imagen == null || imagen.length == 0) {
-            throw new IllegalArgumentException("La imagen esta vacia");
-        }
-        if (imagen.length > MAX_PORTADA_BYTES) {
-            throw new IllegalArgumentException("La imagen no puede pesar mas de 2MB");
-        }
-        if (!esPng(imagen)) {
-            throw new IllegalArgumentException("La imagen debe ser un PNG valido");
-        }
-
-        Libro libro = buscarPorId(id);
-        libro.setPortada(imagen);
-        return toDto(bookRepository.save(libro));
-    }
-
-    public byte[] obtenerPortada(UUID id) {
-        byte[] portada = buscarPorId(id).getPortada();
-        if (portada == null) {
-            throw new NoSuchElementException("Este libro no tiene portada");
-        }
-        return portada;
-    }
-
-    private static final int MAX_PORTADA_BYTES = 2 * 1024 * 1024;
-    private static final byte[] FIRMA_PNG = {(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
-
-    private boolean esPng(byte[] imagen) {
-        if (imagen.length < FIRMA_PNG.length) {
-            return false;
-        }
-        for (int i = 0; i < FIRMA_PNG.length; i++) {
-            if (imagen[i] != FIRMA_PNG[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private Libro buscarPorId(UUID id) {
         return bookRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Libro no encontrado"));
@@ -141,7 +104,7 @@ public class BookService {
                 libro.getStock(),
                 libro.getStockReservado(),
                 libro.getActivo(),
-                libro.getPortada() != null
+                libro.getPortadaUrl()
         );
     }
 }

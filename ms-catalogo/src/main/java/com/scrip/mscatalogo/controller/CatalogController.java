@@ -6,8 +6,6 @@ import com.scrip.mscatalogo.dto.StockRequest;
 import com.scrip.mscatalogo.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,10 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,19 +72,5 @@ public class CatalogController {
     @PatchMapping("/{id}/liberar")
     public BookDto liberar(@PathVariable UUID id, @Valid @RequestBody StockRequest request) {
         return bookService.liberarStock(id, request.cantidad());
-    }
-
-    @PostMapping("/{id}/portada")
-    public BookDto subirPortada(@PathVariable UUID id, @RequestParam("archivo") MultipartFile archivo) {
-        try {
-            return bookService.subirPortada(id, archivo.getBytes());
-        } catch (IOException e) {
-            throw new UncheckedIOException("No se pudo leer la imagen enviada", e);
-        }
-    }
-
-    @GetMapping(value = "/{id}/portada", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> obtenerPortada(@PathVariable UUID id) {
-        return ResponseEntity.ok(bookService.obtenerPortada(id));
     }
 }

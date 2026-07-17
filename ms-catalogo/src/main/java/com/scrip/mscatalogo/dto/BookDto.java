@@ -11,6 +11,6 @@ public record BookDto(
         Integer stock,
         Integer stockReservado,
         Boolean activo,
-        Boolean tienePortada
+        String portadaUrl
 ) {
 }
