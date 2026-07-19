@@ -4,7 +4,7 @@ server:
 
 spring:
   config:
-    import: optional:file:.env[.properties]
+    import: optional:file:../.env[.properties]
 
   application:
     name: ms-user-auth-register
@@ -13,14 +13,14 @@ spring:
   # CONFIGURACIÓN DE POSTGRESQL (JPA/HIBERNATE)
   # ==========================================
   datasource:
-    url: ${IDENTIDAD_DB_URL}
-    username: ${IDENTIDAD_DB_USERNAME}
-    password: ${IDENTIDAD_DB_PASSWORD}
+    url: ${BIBLIO_DB_URL}
+    username: ${BIBLIO_DB_USERNAME}
+    password: ${BIBLIO_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       schema: identidad
-      maximum-pool-size: ${IDENTIDAD_DB_POOL_SIZE:5}
-      minimum-idle: ${IDENTIDAD_DB_MIN_IDLE:1}
+      maximum-pool-size: ${BIBLIO_DB_POOL_SIZE:5}
+      minimum-idle: ${BIBLIO_DB_MIN_IDLE:1}
       connection-timeout: 10000
 
   jpa:
