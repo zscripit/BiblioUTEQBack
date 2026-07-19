@@ -21,10 +21,8 @@ import java.util.UUID;
 public class EntregaCorreoService {
     private final NotificacionRepository repository;
     private final IdentityClient identityClient;
-    private final ResendEmailClient resendEmailClient;
-    @Value("${resend.test-mode}") private boolean testMode;
-    @Value("${resend.test-recipient}") private String testRecipient;
-    @Value("${resend.max-attempts}") private int maxAttempts;
+    private final SmtpEmailClient smtpEmailClient;
+    @Value("${notifications.max-attempts}") private int maxAttempts;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void entregar(UUID id) {
@@ -37,11 +35,11 @@ public class EntregaCorreoService {
                 notificacion.setUltimoError("Usuario inactivo o inexistente");
                 return;
             }
-            String destino = testMode ? testRecipient : usuario.email();
-            if (destino == null || destino.isBlank() || destino.startsWith("REPLACE_")) {
-                throw new IllegalStateException("Configure RESEND_TEST_RECIPIENT con el correo de su cuenta Resend");
+            String destino = usuario.email();
+            if (destino == null || destino.isBlank()) {
+                throw new IllegalStateException("El usuario no tiene un correo electrónico configurado");
             }
-            String proveedorId = resendEmailClient.enviar(destino, asunto(notificacion), plantilla(notificacion), notificacion.getClaveIdempotencia());
+            String proveedorId = smtpEmailClient.enviar(destino, asunto(notificacion), plantilla(notificacion));
             notificacion.setIntentos(notificacion.getIntentos() + 1);
             notificacion.setCorreoDestino(destino);
             notificacion.setProveedorId(proveedorId);
