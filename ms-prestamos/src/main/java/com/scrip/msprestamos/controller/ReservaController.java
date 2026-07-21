@@ -45,7 +45,7 @@ public class ReservaController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'INSTRUCTOR')")
     public ResponseEntity<List<Reserva>> obtenerTodasReservas() {
         return ResponseEntity.ok(reservaService.obtenerTodasReservas());
     }

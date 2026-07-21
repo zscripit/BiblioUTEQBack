@@ -127,7 +127,9 @@ public class SecurityConfig {
                                 "/.well-known/appspecific/**",
                                 "/favicon.ico"
                         ).permitAll()
-                        .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
+                        // El rol exacto (ADMINISTRADOR vs INSTRUCTOR) lo decide cada
+                        // metodo del controlador con @PreAuthorize; aqui solo exigimos sesion.
+                        .requestMatchers("/api/users/**").authenticated()
                         // Cualquier otra requiere estar autenticado
                         .anyRequest().authenticated()
                 )
