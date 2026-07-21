@@ -22,7 +22,7 @@ public class PrestamosController {
     private final PrestamoService prestamoService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'INSTRUCTOR')")
     public ResponseEntity<?> registrarPrestamo(@Valid @RequestBody PrestamoRequest request) {
         try {
             Prestamo prestamo = prestamoService.registrarPrestamo(request);
@@ -36,7 +36,7 @@ public class PrestamosController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'INSTRUCTOR')")
     public ResponseEntity<List<Prestamo>> listarPrestamos() {
         return ResponseEntity.ok(prestamoService.listarPrestamos());
     }
