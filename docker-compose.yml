@@ -1,0 +1,94 @@
+services:
+  eureka:
+    image: sscrip/bu-eureka:v1.0.0
+    restart: unless-stopped
+    networks:
+      - biblioteca
+
+  ms-auth:
+    image: sscrip/bu-auth:v1.0.1
+    restart: unless-stopped
+    depends_on:
+      - eureka
+    env_file:
+      - .env
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      FRONTEND_URL: http://158.23.160.84
+    networks:
+      - biblioteca
+
+  ms-catalogo:
+    image: sscrip/bu-catalogo:v1.0.0
+    restart: unless-stopped
+    depends_on:
+      - eureka
+      - ms-auth
+    env_file:
+      - .env
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://ms-auth:8081/oauth2/jwks
+    networks:
+      - biblioteca
+
+  ms-devoluciones:
+    image: sscrip/bu-devoluciones:v1.0.0
+    restart: unless-stopped
+    depends_on:
+      - eureka
+      - ms-auth
+    env_file:
+      - .env
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://ms-auth:8081/oauth2/jwks
+    networks:
+      - biblioteca
+
+  ms-prestamos:
+    image: sscrip/bu-prestamos:v1.0.0
+    restart: unless-stopped
+    depends_on:
+      - eureka
+      - ms-auth
+    env_file:
+      - .env
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      IDENTITY_TOKEN_URI: http://ms-auth:8081/oauth2/token
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://ms-auth:8081/oauth2/jwks
+    networks:
+      - biblioteca
+
+  gateway:
+    image: sscrip/bu-gateway:v1.0.1
+    restart: unless-stopped
+    depends_on:
+      - eureka
+      - ms-auth
+      - ms-catalogo
+      - ms-devoluciones
+      - ms-prestamos
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://ms-auth:8081/oauth2/jwks
+      FRONTEND_URL: http://158.23.160.84
+    ports:
+      - "8088:8088"
+    networks:
+      - biblioteca
+
+  frontend:
+    image: sscrip/bu-frontend:v1.0.3
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    ports:
+      - "80:80"
+    networks:
+      - biblioteca
+
+networks:
+  biblioteca:
+    driver: bridge

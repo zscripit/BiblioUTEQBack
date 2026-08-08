@@ -28,7 +28,8 @@ public class AuthorizationServerConfig {
     public RegisteredClientRepository registeredClientRepository(
             BCryptPasswordEncoder passwordEncoder,
             @Value("${MS_NOTIFICATIONS_CLIENT_SECRET}") String notificationsClientSecret,
-            @Value("${MS_PRESTAMOS_CLIENT_SECRET}") String prestamosClientSecret) {
+            @Value("${MS_PRESTAMOS_CLIENT_SECRET}") String prestamosClientSecret,
+            @Value("${FRONTEND_URL:http://localhost:4200}") String frontendUrl) {
         RegisteredClient postmanClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("postman-client")
                 // Registramos la contraseña secreta cifrada con BCrypt (la usaremos en Postman)
@@ -56,7 +57,9 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://localhost:4200/auth/callback")
+                .redirectUri(frontendUrl + "/auth/callback")
                 .postLogoutRedirectUri("http://localhost:4200/")
+                .postLogoutRedirectUri(frontendUrl + "/")
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
                 .scope("read")
