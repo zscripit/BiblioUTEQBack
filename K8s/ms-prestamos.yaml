@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-prestamos
+  namespace: biblioteca
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-prestamos
+  template:
+    metadata:
+      labels:
+        app: ms-prestamos
+    spec:
+      containers:
+        - name: ms-prestamos
+          image: sscrip/bu-prestamos:v1.0.0
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - secretRef:
+                name: biblioteca-env
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka:8761/eureka/
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI
+              value: http://ms-auth:8081/oauth2/jwks
+            - name: IDENTITY_TOKEN_URI
+              value: http://ms-auth:8081/oauth2/token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-prestamos
+  namespace: biblioteca
+spec:
+  selector:
+    app: ms-prestamos
+  ports:
+    - port: 8082
+      targetPort: 8082

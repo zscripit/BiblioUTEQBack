@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: biblioteca-config
+  namespace: biblioteca
+data:
+  FRONTEND_URL: https://biblio-uteq-scrips-projects-2bd05e75.vercel.app

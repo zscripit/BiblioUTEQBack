@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-auth
+  namespace: biblioteca
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-auth
+  template:
+    metadata:
+      labels:
+        app: ms-auth
+    spec:
+      containers:
+        - name: ms-auth
+          image: sscrip/bu-auth:v1.0.1
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - secretRef:
+                name: biblioteca-env
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka:8761/eureka/
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: biblioteca-config
+                  key: FRONTEND_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-auth
+  namespace: biblioteca
+spec:
+  selector:
+    app: ms-auth
+  ports:
+    - port: 8081
+      targetPort: 8081

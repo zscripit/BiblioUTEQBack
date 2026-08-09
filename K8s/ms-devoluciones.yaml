@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-devoluciones
+  namespace: biblioteca
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-devoluciones
+  template:
+    metadata:
+      labels:
+        app: ms-devoluciones
+    spec:
+      containers:
+        - name: ms-devoluciones
+          image: sscrip/bu-devoluciones:v1.0.0
+          ports:
+            - containerPort: 8084
+          envFrom:
+            - secretRef:
+                name: biblioteca-env
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka:8761/eureka/
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI
+              value: http://ms-auth:8081/oauth2/jwks
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-devoluciones
+  namespace: biblioteca
+spec:
+  selector:
+    app: ms-devoluciones
+  ports:
+    - port: 8084
+      targetPort: 8084

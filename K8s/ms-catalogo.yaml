@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-catalogo
+  namespace: biblioteca
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-catalogo
+  template:
+    metadata:
+      labels:
+        app: ms-catalogo
+    spec:
+      containers:
+        - name: ms-catalogo
+          image: sscrip/bu-catalogo:v1.0.0
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - secretRef:
+                name: biblioteca-env
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka:8761/eureka/
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI
+              value: http://ms-auth:8081/oauth2/jwks
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-catalogo
+  namespace: biblioteca
+spec:
+  selector:
+    app: ms-catalogo
+  ports:
+    - port: 8083
+      targetPort: 8083
